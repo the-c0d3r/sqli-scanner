@@ -107,16 +107,12 @@ class controller:
             for proc in self.workers:
                 proc.terminate()
         finally:
-            if self.resultQ.qsize != 0:
-                result = []
-                while True:
-                    temp = self.resultQ.get()
-                    if temp != None:
-                        result.append(str(temp))
-                FileWriter(outFile, result)
-            else:
-                logging.info("[-] Nothing to save")
-
+            result = []
+            while not self.resultQ.empty():
+                temp = self.resultQ.get()
+                if temp != None:
+                    result.append(str(temp))
+            FileWriter(outFile, result)
 
     def start(self):
         self.taskQ = multiprocessing.JoinableQueue()
@@ -171,13 +167,13 @@ def handle_args():
             logging.info("Verbose mode Activated")
         else:
             logging.basicConfig(format="%(levelname)s: %(message)s")
-        if args.output != None:
+        if args.output == None:
             args.output = "result.txt"
 
-        try:
-            controller(args.file, args.output)
-        except KeyboardInterrupt:
-            print("\n[~] Exiting...")
+        # try:
+        controller(args.file, args.output)
+        # except KeyboardInterrupt:
+            # print("\n[~] Exiting...")
         # except Exception as e:
         #     logging.warning(e)
         #     print("\n[!] Error Occured")
