@@ -107,24 +107,25 @@ class controller:
             self.start()
             logging.info("[+] All work done, saving file")
         except KeyboardInterrupt:
-            print("Stopping processes")
-            for proc in self.workers:
-                proc.terminate()
+            self.cleanup()
         finally:
-            print("Stopping processes")
-            for proc in self.workers:
-                proc.terminate()
+            self.cleanup()
 
-            result = []
-            while not self.resultQ.empty():
-                temp = self.resultQ.get()
-                if temp != None:
-                    result.append(str(temp))
-            print("\n\n{}[+] Found a total of {} sites from {} sites to be vulnerable".format(
-                colours.OKGREEN,len(result), len(self.urllist)))
-            FileWriter(outFile, result)
-            print("[+] File Saved to {}{}".format(outFile, colours.ENDC))
-            exit()
+    def cleanup(self):
+        logging.debug("Stopping processes")
+        for proc in self.workers:
+            proc.terminate()
+        result = []
+        while not self.resultQ.empty():
+            temp = self.resultQ.get()
+            if temp != None:
+                result.append(str(temp))
+        print("\n\n{}[+] Found a total of {} sites from {} sites to be vulnerable".format(
+            colours.OKGREEN,len(result), len(self.urllist)))
+        FileWriter(outFile, result)
+        print("[+] File Saved to {}{}".format(outFile, colours.ENDC))
+        exit()
+
 
     def start(self):
         for url in self.urllist:
