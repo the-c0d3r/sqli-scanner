@@ -112,7 +112,10 @@ class controller:
                 temp = self.resultQ.get()
                 if temp != None:
                     result.append(str(temp))
+            print("\n\n{}[+] Found a total of {} sites from {} sites to be vulnerable".format(
+                colours.OKGREEN,len(result), len(self.urllist)))
             FileWriter(outFile, result)
+            print("[+] File Saved to {}{}".format(outFile, colours.ENDC))
 
     def start(self):
         self.taskQ = multiprocessing.JoinableQueue()
