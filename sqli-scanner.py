@@ -91,7 +91,7 @@ class worker(multiprocessing.Process):
                     Report(result, vuln)
 
 class controller:
-    def __init__(self, inFile, outFile):
+    def __init__(self, inFile, outFile, processcount=None):
         """
         Initiate controller procedure
         :param inFile: the file containing the URLs
@@ -99,6 +99,10 @@ class controller:
         """
         try:
             self.urllist = deduplicate(FileReader(inFile).read()).result
+            self.workerCount = int(processcount) if processcount else multiprocessing.cpu_count() * 2
+            self.taskQ = multiprocessing.JoinableQueue()
+            self.resultQ = multiprocessing.Queue()
+            self.workers = []
 
             self.start()
             logging.info("[+] All work done, saving file")
@@ -107,6 +111,10 @@ class controller:
             for proc in self.workers:
                 proc.terminate()
         finally:
+            print("Stopping processes")
+            for proc in self.workers:
+                proc.terminate()
+
             result = []
             while not self.resultQ.empty():
                 temp = self.resultQ.get()
@@ -116,13 +124,9 @@ class controller:
                 colours.OKGREEN,len(result), len(self.urllist)))
             FileWriter(outFile, result)
             print("[+] File Saved to {}{}".format(outFile, colours.ENDC))
+            exit()
 
     def start(self):
-        self.taskQ = multiprocessing.JoinableQueue()
-        self.resultQ = multiprocessing.Queue()
-        self.workerCount = multiprocessing.cpu_count() * 2
-        self.workers = []
-
         for url in self.urllist:
             # populates the Task Queue
             self.taskQ.put(URLHandler(url))
@@ -154,9 +158,10 @@ def handle_args():
     A function to parse the command argument
     And control the main program
     """
-    parser = argparse.ArgumentParser(prog="Union Based SQL Injector",description="Union Based SQL injector")
+    parser = argparse.ArgumentParser(prog="sqli-scanner.py",description="Mass SQL vulnerability scanner")
     parser.add_argument("-f", "--file", help="Target file with URLs")
     parser.add_argument("-o", "--output", help="Output file to save vulnerable websites to")
+    parser.add_argument("-p", "--processcount", help="Number of processes to generate")
     parser.add_argument("-v", "--verbose",help="Enable Verbose mode",action="store_true")
     args = parser.parse_args()
 
@@ -172,16 +177,7 @@ def handle_args():
             logging.basicConfig(format="%(levelname)s: %(message)s")
         if args.output == None:
             args.output = "result.txt"
-
-        # try:
-        controller(args.file, args.output)
-        # except KeyboardInterrupt:
-            # print("\n[~] Exiting...")
-        # except Exception as e:
-        #     logging.warning(e)
-        #     print("\n[!] Error Occured")
-        #     print(e)
-        #     exit()
+        controller(args.file, args.output, args.processcount)
 
 if __name__ == "__main__":
     handle_args()
