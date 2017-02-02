@@ -103,6 +103,7 @@ class controller:
             self.taskQ = multiprocessing.JoinableQueue()
             self.resultQ = multiprocessing.Queue()
             self.workers = []
+            self.outfile = outFile
 
             self.start()
             logging.info("[+] All work done, saving file")
@@ -122,8 +123,8 @@ class controller:
                 result.append(str(temp))
         print("\n\n{}[+] Found a total of {} sites from {} sites to be vulnerable".format(
             colours.OKGREEN,len(result), len(self.urllist)))
-        FileWriter(outFile, result)
-        print("[+] File Saved to {}{}".format(outFile, colours.ENDC))
+        FileWriter(self.outfile, result)
+        print("[+] File Saved to {}{}".format(self.outfile, colours.ENDC))
         exit()
 
 
@@ -153,12 +154,12 @@ class controller:
         for w in self.workers:
             w.join()
 
-
 def handle_args():
     """
     A function to parse the command argument
     And control the main program
     """
+    banner()
     parser = argparse.ArgumentParser(prog="sqli-scanner.py",description="Mass SQL vulnerability scanner")
     parser.add_argument("-f", "--file", help="Target file with URLs")
     parser.add_argument("-o", "--output", help="Output file to save vulnerable websites to")
@@ -179,6 +180,20 @@ def handle_args():
         if args.output == None:
             args.output = "result.txt"
         controller(args.file, args.output, args.processcount)
+
+def banner():
+    bannerart = """
+    -------------------------------------------------------
+    MASS
+     _____ _____ __    _     _____
+    |   __|     |  |  |_|___|   __|___ ___ ___ ___ ___ ___
+    |__   |  |  |  |__| |___|__   |  _| .'|   |   | -_|  _|
+    |_____|__  _|_____|_|   |_____|___|__,|_|_|_|_|___|_|
+             |__|
+                                                  the-c0d3r
+    -------------------------------------------------------
+    """
+    print(bannerart)
 
 if __name__ == "__main__":
     handle_args()
