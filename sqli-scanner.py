@@ -108,7 +108,7 @@ class controller:
             self.start()
             logging.info("[+] All work done, saving file")
         except KeyboardInterrupt:
-            self.cleanup()
+            pass
         finally:
             self.cleanup()
 
