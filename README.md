@@ -5,6 +5,16 @@ This is a sql vulnerability scanner, intended for a list of urls. This is made t
 # Usage
 
 ```
+    -------------------------------------------------------
+    MASS
+     _____ _____ __    _     _____
+    |   __|     |  |  |_|___|   __|___ ___ ___ ___ ___ ___
+    |__   |  |  |  |__| |___|__   |  _| .'|   |   | -_|  _|
+    |_____|__  _|_____|_|   |_____|___|__,|_|_|_|_|___|_|
+             |__|
+                                                  the-c0d3r
+    -------------------------------------------------------
+
 usage: sqli-scanner.py [-h] [-f FILE] [-o OUTPUT] [-p PROCESSCOUNT] [-v]
 
 Mass SQL vulnerability scanner
